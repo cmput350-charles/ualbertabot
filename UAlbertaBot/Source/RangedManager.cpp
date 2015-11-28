@@ -162,7 +162,11 @@ int RangedManager::getAttackPriority(BWAPI::Unit rangedUnit, BWAPI::Unit target)
     {
         return 101;
     }
-
+	// Always go after their detectors first
+	if (target->getType() == BWAPI::UnitTypes::Protoss_Observer || target->getType() == BWAPI::UnitTypes::Terran_Science_Vessel)
+	{
+		return 101;
+	}
     // if the target is building something near our base something is fishy
     BWAPI::Position ourBasePosition = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
     if (target->getType().isWorker() && (target->isConstructing() || target->isRepairing()) && target->getDistance(ourBasePosition) < 1200)
