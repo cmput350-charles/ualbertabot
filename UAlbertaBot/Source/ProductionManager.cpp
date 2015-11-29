@@ -171,7 +171,17 @@ void ProductionManager::manageBuildOrderQueue()
 
 		
 		// this is the unit which can produce the currentItem
-		BWAPI::Unit producer = getProducer(currentItem.metaType);
+		BWAPI::Unit producer;
+
+		// Make sure that the lair is made in the home base, not the natural
+		if (currentItem.metaType.whatBuilds() == BWAPI::UnitTypes::Zerg_Hatchery){
+			BWAPI::TilePosition basePosition = BWAPI::Broodwar->self()->getStartLocation();
+			BWAPI::Position home(basePosition.x * 32, basePosition.y * 32);
+			producer = getProducer(currentItem.metaType, home);
+		}
+		else {
+			producer = getProducer(currentItem.metaType);
+		}
 
 		// check to see if we can make it right now
 		bool canMake = canMakeNow(producer, currentItem.metaType);

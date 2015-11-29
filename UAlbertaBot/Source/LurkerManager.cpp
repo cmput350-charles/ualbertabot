@@ -117,18 +117,11 @@ int LurkerManager::getAttackPriority(BWAPI::Unit LurkerUnit, BWAPI::Unit target)
 	BWAPI::UnitType LurkerType = LurkerUnit->getType();
 	BWAPI::UnitType targetType = target->getType();
 
-	// ignore all flying units
-
 	bool isThreat = LurkerType.isFlyer() ? targetType.airWeapon() != BWAPI::WeaponTypes::None : targetType.groundWeapon() != BWAPI::WeaponTypes::None;
 
 	if (target->getType().isWorker())
 	{
 		isThreat = false;
-	}
-
-	if (target->getType() == BWAPI::UnitTypes::Zerg_Lurker)
-	{
-		return 110;
 	}
 
 	if (target->getType() == BWAPI::UnitTypes::Zerg_Larva || target->getType() == BWAPI::UnitTypes::Zerg_Egg)
@@ -156,17 +149,7 @@ int LurkerManager::getAttackPriority(BWAPI::Unit LurkerUnit, BWAPI::Unit target)
 	// next priority is worker
 	else if (targetType.isWorker())
 	{
-		if (LurkerUnit->getType() == BWAPI::UnitTypes::Terran_Vulture)
-		{
-			return 11;
-		}
-
 		return 11;
-	}
-	// next is special buildings
-	else if (targetType == BWAPI::UnitTypes::Zerg_Spawning_Pool)
-	{
-		return 5;
 	}
 	// next is special buildings
 	else if (targetType == BWAPI::UnitTypes::Protoss_Pylon)
