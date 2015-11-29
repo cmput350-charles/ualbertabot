@@ -31,7 +31,7 @@ void UpgradeOrder::add(const MetaType & t)
 	// Place at front
 	// Only upto max of the upgrade type
 	if (count < BWAPI::Broodwar->self()->getMaxUpgradeLevel(t.getUpgradeType())) {
-		_upgradeOrder.push_back(std::pair<MetaType, int>(t, count));
+		_upgradeOrder.push_back(std::pair<MetaType, int>(t, count + 1));
 	}
 }
 

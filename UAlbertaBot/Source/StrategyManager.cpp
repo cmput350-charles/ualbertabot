@@ -370,7 +370,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 				if (!playerHasUpgrade(upgradePair)) {
 					++numAddedUpgrades;
 					BWAPI::Broodwar->printf("Is adding upgrade to queue %s", upgradePair.first.getName().c_str());
-					goal.push_back(std::pair<MetaType, int>(upgradePair.first, 1));
+					goal.push_back(upgradePair);
 				}
 			}
 			// Update the order in the map
