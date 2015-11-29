@@ -151,10 +151,18 @@ void ProductionManager::manageBuildOrderQueue()
 		// Check for other buildings
 		if (currentItem.metaType.isUpgrade()) {
 			auto set = getProducersForUpgrade(currentItem.metaType);
+			auto upgType = currentItem.metaType.getUpgradeType();
+			int maxLvl = BWAPI::Broodwar->self()->getMaxUpgradeLevel(upgType);
+			int currentLvl = BWAPI::Broodwar->self()->getUpgradeLevel(upgType);
 			for (auto unit : set) {
-				//bool canMake = canMakeNow(unit, currentItem.metaType);
-				if (unit->canUpgrade(currentItem.metaType.getUpgradeType()) && unit && !unit->isUpgrading()) {
+				bool canMake = canMakeNow(unit, currentItem.metaType);
+				if (canMake && unit->canUpgrade(currentItem.metaType.getUpgradeType()) && 
+					!unit->isUpgrading() &&
+					currentLvl < maxLvl &&
+					BWAPI::Broodwar->self()->completedUnitCount(upgType.whatsRequired(currentLvl + 1)) > 0 &&
+					BWAPI::Broodwar->self()->completedUnitCount(upgType.whatUpgrades()) > 0) {
 					create(unit, currentItem);
+					// Just remove we will readd on next iteration if needed
 					_queue.removeCurrentHighestPriorityItem();
 					break;
 				}
@@ -223,6 +231,7 @@ void ProductionManager::manageBuildOrderQueue()
 		else 
 		{
 			// so break out
+			// Can't do anything just remove it.
 			break;
 		}
 	}
