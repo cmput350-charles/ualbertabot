@@ -147,30 +147,36 @@ void ProductionManager::manageBuildOrderQueue()
 	// while there is still something left in the _queue
 	while (!_queue.isEmpty()) 
 	{
-		// this is the unit which can produce the currentItem
-        BWAPI::Unit producer = getProducer(currentItem.metaType);
-
-		// check to see if we can make it right now
-		bool canMake = canMakeNow(producer, currentItem.metaType);
 
 		// Check for other buildings
-		if (producer && !producer->canUpgrade(currentItem.metaType.getUpgradeType())) {
+		if (currentItem.metaType.isUpgrade()) {
 			auto set = getProducersForUpgrade(currentItem.metaType);
 			for (auto unit : set) {
-				if (unit->canUpgrade(currentItem.metaType.getUpgradeType())) {
-					create(producer, currentItem);
+				//bool canMake = canMakeNow(unit, currentItem.metaType);
+				if (unit->canUpgrade(currentItem.metaType.getUpgradeType()) && unit && !unit->isUpgrading()) {
+					create(unit, currentItem);
+					_queue.removeCurrentHighestPriorityItem();
 					break;
 				}
 			}
 		}
 
+		
+		// this is the unit which can produce the currentItem
+		BWAPI::Unit producer = getProducer(currentItem.metaType);
+
+		// check to see if we can make it right now
+		bool canMake = canMakeNow(producer, currentItem.metaType);
+
 		// Check if it's an upgrade, just do it right away and continue on
 		// Was waiting before
-		if (canMake && currentItem.metaType.isUpgrade()) {
-			create(producer, currentItem);
-			_queue.removeCurrentHighestPriorityItem();
-			break;
-		} else 
+		//if (canMake && currentItem.metaType.isUpgrade()) {
+		//	create(producer, currentItem);
+		//	_queue.removeCurrentHighestPriorityItem();
+		//	break;
+		//} else 
+
+
 		// if we try to build too many refineries manually remove it
 		if (currentItem.metaType.isRefinery() && (BWAPI::Broodwar->self()->allUnitCount(BWAPI::Broodwar->self()->getRace().getRefinery() >= 3)))
 		{

@@ -74,6 +74,6 @@ public:
 	const	int				        defendWithWorkers();
 	const	MetaPairVector		    getBuildOrderGoal();
 	const	BuildOrder &            getOpeningBookBuildOrder() const;
-			bool					playerHasUpgrade(MetaType upgrade) const;
+	bool							playerHasUpgrade(std::pair<MetaType, unsigned int> upgradeMetaPair) const;
 };
 }

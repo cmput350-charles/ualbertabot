@@ -258,11 +258,14 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 	return goal;
 }
 
-bool StrategyManager::playerHasUpgrade(MetaType upgradeMeta) const {
+// Check if we have this upgrade already
+bool StrategyManager::playerHasUpgrade(std::pair<MetaType,unsigned int> upgradeMetaPair) const {
 
-	auto upgrade = upgradeMeta.getUpgradeType();
+	auto upgrade = upgradeMetaPair.first.getUpgradeType();
 
-	if (BWAPI::Broodwar->self()->getUpgradeLevel(upgrade) > 0 || BWAPI::Broodwar->self()->isUpgrading(upgrade)) {
+	//BWAPI::Broodwar->printf("Upgrading... max level: %d, has level: %d  for %s", BWAPI::Broodwar->self()->getMaxUpgradeLevel(upgrade), BWAPI::Broodwar->self()->getUpgradeLevel(upgrade), upgrade.getName().c_str());
+
+	if (upgradeMetaPair.second == BWAPI::Broodwar->self()->getUpgradeLevel(upgrade)) {
 		return true;
 	}
 
@@ -344,22 +347,34 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 	if (currentStrategyIt != std::end(_strategies))
 	{
 		UpgradeOrder upgradeOrder = currentStrategyIt->second._upgradeOrder;
+		int addNumUpgradesToQueue = 2;
+		int numAddedUpgrades = 0;
 		// Check bounds
 		if (!upgradeOrder.empty()) {
 
 			// Do 2 upgrades and check if within bounds
-			for (size_t numUpgrades = 0; numUpgrades < 2 && numUpgrades < upgradeOrder.size(); ++numUpgrades) {
+			for (size_t numUpgrades = 0; numUpgrades < upgradeOrder.size(); ++numUpgrades) {
 
-				MetaType upgrade = upgradeOrder.getNextUpgrade();
+				auto upgradePair = upgradeOrder[numUpgrades];
+
+				if (playerHasUpgrade(upgradePair)) {
+					continue;
+				}
+
+				// We have done 2 upgrades, update next time.
+				if (numAddedUpgrades >= addNumUpgradesToQueue) {
+					break;
+				}
 
 				// Check if player has this upgrade already...
-				if (!playerHasUpgrade(upgrade)) {
-					goal.push_back(std::pair<MetaType, int>(upgrade, 1));
-					upgradeOrder.upgradeAddedToBuild();
+				if (!playerHasUpgrade(upgradePair)) {
+					++numAddedUpgrades;
+					BWAPI::Broodwar->printf("Is adding upgrade to queue %s", upgradePair.first.getName().c_str());
+					goal.push_back(std::pair<MetaType, int>(upgradePair.first, 1));
 				}
 			}
 			// Update the order in the map
-			_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
+			//_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
 		}
 	}
 
