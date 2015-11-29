@@ -176,7 +176,6 @@ void ProductionManager::manageBuildOrderQueue()
 		//	break;
 		//} else 
 
-
 		// if we try to build too many refineries manually remove it
 		if (currentItem.metaType.isRefinery() && (BWAPI::Broodwar->self()->allUnitCount(BWAPI::Broodwar->self()->getRace().getRefinery() >= 3)))
 		{
@@ -478,7 +477,9 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
     }
     else
     {	
-		
+		// Otherwise we can't do this..
+		// Just remove it to avoid getting stuck...
+		_queue.removeHighestPriorityItem();
     }
 }
 
