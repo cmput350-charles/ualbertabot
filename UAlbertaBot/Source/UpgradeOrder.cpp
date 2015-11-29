@@ -3,36 +3,36 @@
 using namespace UAlbertaBot;
 
 UpgradeOrder::UpgradeOrder()
-    : _race(BWAPI::Races::None)
+	: _race(BWAPI::Races::None)
 {
 
 }
 
 UpgradeOrder::UpgradeOrder(const BWAPI::Race & race)
-    : _race(race)
+	: _race(race)
 {
 
 }
 
 UpgradeOrder::UpgradeOrder(const BWAPI::Race & race, const std::vector<MetaType> & metaVector)
-    : _race(race)
-    , _upgradeOrder(metaVector)
+	: _race(race)
+	, _upgradeOrder(metaVector)
 {
 
 }
 
 void UpgradeOrder::add(const MetaType & t)
 {
-    UAB_ASSERT(t.getRace() == getRace(), "Trying to add difference Race metatype to upgrade order");
+	UAB_ASSERT(t.getRace() == getRace(), "Trying to add difference Race metatype to upgrade order");
 	UAB_ASSERT(t.isUpgrade(), "Trying to add something that is not an upgrade");
 
 	// Place at front
-	_upgradeOrder.insert(_upgradeOrder.begin(),t);
+	_upgradeOrder.insert(_upgradeOrder.begin(), t);
 }
 
 const BWAPI::Race & UpgradeOrder::getRace() const
 {
-    return _race;
+	return _race;
 }
 
 const size_t UpgradeOrder::size() const
@@ -53,4 +53,15 @@ void	 UpgradeOrder::upgradeAddedToBuild() {
 	if (!_upgradeOrder.empty()){
 		_upgradeOrder.pop_back();
 	}
+}
+
+
+const MetaType & UpgradeOrder::operator [] (const size_t & index) const
+{
+	return _upgradeOrder[index];
+}
+
+MetaType & UpgradeOrder::operator [] (const size_t & index)
+{
+	return _upgradeOrder[index];
 }

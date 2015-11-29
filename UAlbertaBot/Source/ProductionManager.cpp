@@ -153,6 +153,17 @@ void ProductionManager::manageBuildOrderQueue()
 		// check to see if we can make it right now
 		bool canMake = canMakeNow(producer, currentItem.metaType);
 
+		// Check for other buildings
+		if (producer && !producer->canUpgrade(currentItem.metaType.getUpgradeType())) {
+			auto set = getProducersForUpgrade(currentItem.metaType);
+			for (auto unit : set) {
+				if (unit->canUpgrade(currentItem.metaType.getUpgradeType())) {
+					create(producer, currentItem);
+					break;
+				}
+			}
+		}
+
 		// Check if it's an upgrade, just do it right away and continue on
 		// Was waiting before
 		if (canMake && currentItem.metaType.isUpgrade()) {
@@ -211,6 +222,48 @@ void ProductionManager::manageBuildOrderQueue()
 		}
 	}
 }
+
+BWAPI::Unitset ProductionManager::getProducersForUpgrade(MetaType t)
+{
+	// get the type of unit that builds this
+	BWAPI::UnitType producerType = t.whatBuilds();
+
+	// make a set of all candidate producers
+	BWAPI::Unitset candidateProducers;
+
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
+	{
+		UAB_ASSERT(unit != nullptr, "Unit was null");
+
+		// reasons a unit can not train the desired type
+		if (unit->getType() != producerType)                    { continue; }
+		if (!unit->isCompleted())                               { continue; }
+		if (unit->isTraining())                                 { continue; }
+		if (unit->isLifted())                                   { continue; }
+		if (!unit->isPowered())                                 { continue; }
+
+		// if the type requires an addon and the producer doesn't have one
+		typedef std::pair<BWAPI::UnitType, int> ReqPair;
+		for (const ReqPair & pair : t.getUnitType().requiredUnits())
+		{
+			BWAPI::UnitType requiredType = pair.first;
+			if (requiredType.isAddon())
+			{
+				if (!unit->getAddon() || (unit->getAddon()->getType() != requiredType))
+				{
+					continue;
+				}
+			}
+		}
+
+		// if we haven't cut it, add it to the set of candidates
+		candidateProducers.insert(unit);
+	}
+
+	return candidateProducers;
+}
+
+
 
 BWAPI::Unit ProductionManager::getProducer(MetaType t, BWAPI::Position closestTo)
 {
