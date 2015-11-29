@@ -346,11 +346,13 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 		UpgradeOrder upgradeOrder = currentStrategyIt->second._upgradeOrder;
 		// Check bounds
 		if (!upgradeOrder.empty() && !playerHasUpgrade(upgradeOrder.getNextUpgrade())) {
-			goal.push_back(std::pair<MetaType, int>(upgradeOrder.getNextUpgrade(), 1));
-			upgradeOrder.upgradeAddedToBuild();
+			if (!BWAPI::Broodwar->self()->isUpgrading(upgradeOrder.getNextUpgrade().getUpgradeType())) {
+				goal.push_back(std::pair<MetaType, int>(upgradeOrder.getNextUpgrade(), 1));
+				upgradeOrder.upgradeAddedToBuild();
 
-			// Update the order in the map
-			_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
+				// Update the order in the map
+				_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
+			}
 		}
 	}
 	return goal;

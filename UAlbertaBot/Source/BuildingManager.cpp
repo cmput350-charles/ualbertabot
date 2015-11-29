@@ -407,9 +407,6 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 		//BWAPI::Broodwar->printf("3cc's detected, macrohatch = true");
 		macroHatch = true;
 	}
-	else {
-		macroHatch = false;
-	}
 
 
 	if (b.isGasSteal)
@@ -438,7 +435,7 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 	if (b.type.isResourceDepot())
 	{		
 		if ((numCC == 2) && (macroHatch == false)) {
-			BWAPI::Broodwar->printf("Should be making macro hatch");
+			//BWAPI::Broodwar->printf("Should be making macro hatch");
 			BWTA::BaseLocation * home;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations()) {
 				if (base->isStartLocation()){
