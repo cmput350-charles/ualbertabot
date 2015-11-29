@@ -304,7 +304,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 	{
 
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk, numLurkers + 4));
-		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Zergling, zerglings + 2));
+		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Zergling, zerglings + 1));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lurker, numLurkers + 1));
 
 		// This seemed to slow stuff down...
@@ -353,6 +353,13 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 				// Update the order in the map
 				_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
 			}
+		}
+		if (!upgradeOrder.empty() && !playerHasUpgrade(upgradeOrder.getNextUpgrade())) {
+			goal.push_back(std::pair<MetaType, int>(upgradeOrder.getNextUpgrade(), 1));
+			upgradeOrder.upgradeAddedToBuild();
+			// Update the order in the map
+
+			_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
 		}
 	}
 	return goal;
