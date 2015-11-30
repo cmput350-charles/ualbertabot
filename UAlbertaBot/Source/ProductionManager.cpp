@@ -441,7 +441,7 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         // send the building task to the building manager
 		if (t.getUnitType() == BWAPI::UnitTypes::Zerg_Creep_Colony) {
 			auto home = BWAPI::Broodwar->self()->getStartLocation();
-			int dist = 1000;
+			int dist = 9999;
 			BWTA::BaseLocation * nat;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations())
 			{
