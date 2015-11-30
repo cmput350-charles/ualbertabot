@@ -263,8 +263,6 @@ bool StrategyManager::playerHasUpgrade(std::pair<MetaType,unsigned int> upgradeM
 
 	auto upgrade = upgradeMetaPair.first.getUpgradeType();
 
-	//BWAPI::Broodwar->printf("Upgrading... max level: %d, has level: %d  for %s", BWAPI::Broodwar->self()->getMaxUpgradeLevel(upgrade), BWAPI::Broodwar->self()->getUpgradeLevel(upgrade), upgrade.getName().c_str());
-
 	if (upgradeMetaPair.second == BWAPI::Broodwar->self()->getUpgradeLevel(upgrade)) {
 		return true;
 	}
@@ -297,20 +295,6 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 
 	if (numCC * (15) > numWorkers) {
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, numWorkers + 3));
-	}
-
-	if (UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lair) == 0 &&
-		numHydras > 15) {
-		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lair, 1));
-	}
-
-	// If we have a Lair build a hive
-	// Late in game
-	if (UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lair) > 0 &&
-		UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hive) == 0 &&
-		numHydras > 30) {
-		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Queens_Nest, 1));
-		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hive, 1));
 	}
 
 
@@ -381,11 +365,13 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 					break;
 				}
 
+				
+
 				// Check if player has this upgrade already...
-				if (!playerHasUpgrade(upgradePair) && !BWAPI::Broodwar->self()->isUpgrading(upgradePair.first.getUpgradeType())) {
+				if (!playerHasUpgrade(upgradePair) && 
+					!BWAPI::Broodwar->self()->isUpgrading(upgradePair.first.getUpgradeType())) {
 					++numAddedUpgrades;
-					//BWAPI::Broodwar->printf("Is adding upgrade to queue %s", upgradePair.first.getName().c_str());
-					goal.push_back(upgradePair);
+				    goal.push_back(upgradePair);
 				}
 			}
 			// Update the order in the map

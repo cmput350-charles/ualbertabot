@@ -133,6 +133,10 @@ void ProductionManager::onUnitDestroy(BWAPI::Unit unit)
 	}
 }
 
+bool ProductionManager::isInQueue(MetaType t) {
+	return std::find_if(_queue.begin(), _queue.end(), [t](BuildOrderItem i){ return i.metaType.getName() == t.getName(); }) != _queue.end();
+}
+
 void ProductionManager::manageBuildOrderQueue() 
 {
 	// if there is nothing in the _queue, oh well
@@ -144,9 +148,16 @@ void ProductionManager::manageBuildOrderQueue()
 	// the current item to be used
 	BuildOrderItem & currentItem = _queue.getHighestPriorityItem();
 
+
+
 	// while there is still something left in the _queue
 	while (!_queue.isEmpty()) 
 	{
+
+		if (currentItem.metaType.getUnitType() == BWAPI::UnitTypes::Zerg_Spire) {
+			_queue.removeCurrentHighestPriorityItem();
+			break;
+		}
 
 		// Check for other buildings
 		if (currentItem.metaType.isUpgrade()) {
@@ -157,10 +168,7 @@ void ProductionManager::manageBuildOrderQueue()
 			for (auto unit : set) {
 				bool canMake = canMakeNow(unit, currentItem.metaType);
 				if (canMake && unit->canUpgrade(currentItem.metaType.getUpgradeType()) && 
-					!unit->isUpgrading() &&
-					currentLvl < maxLvl &&
-					BWAPI::Broodwar->self()->completedUnitCount(upgType.whatsRequired(currentLvl + 1)) > 0 &&
-					BWAPI::Broodwar->self()->completedUnitCount(upgType.whatUpgrades()) > 0) {
+					!unit->isUpgrading()) {
 					create(unit, currentItem);
 					// Just remove we will readd on next iteration if needed
 					_queue.removeCurrentHighestPriorityItem();
