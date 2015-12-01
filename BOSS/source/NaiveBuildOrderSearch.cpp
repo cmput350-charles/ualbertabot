@@ -141,9 +141,17 @@ const BuildOrder & NaiveBuildOrderSearch::solve()
         static const ActionType & Guardian      = ActionTypes::GetActionType("Zerg_Guardian");
         static const ActionType & Devourer      = ActionTypes::GetActionType("Zerg_Devourer");
 
+
+		if (_goal.getGoal(Lurker) > 0)
+		{
+			int currentHydras = _state.getUnitData().getNumTotal(Hydralisk) + buildOrder.getTypeCount(Hydralisk);
+			int additionalHydras = buildOrder.getTypeCount(Lurker) - currentHydras;
+			buildOrder.add(Hydralisk, additionalHydras);
+		}
+
         if (_goal.getGoal(Hydralisk) > 0)
         {
-            int currentHydras = _state.getUnitData().getNumTotal(Hydralisk) + buildOrder.getTypeCount(Hydralisk) - buildOrder.getTypeCount(Lurker);
+			int currentHydras = _state.getUnitData().getNumTotal(Hydralisk) + buildOrder.getTypeCount(Hydralisk);
             int additionalHydras = _goal.getGoal(Hydralisk) - currentHydras;
             buildOrder.add(Hydralisk, additionalHydras);
         }
@@ -269,9 +277,11 @@ const BuildOrder & NaiveBuildOrderSearch::solve()
 			supplyInProgress = _state.getUnitData().getSupplyInProgress();
 		}
 
-		BOSS_ASSERT(_state.isLegal(nextAction), "Should be able to build the next action now");
-		finalBuildOrder.add(nextAction);
-		_state.doAction(nextAction);
+		//BOSS_ASSERT(_state.isLegal(nextAction), "Should be able to build the next action now");
+		if (_state.isLegal(nextAction)){
+			finalBuildOrder.add(nextAction);
+			_state.doAction(nextAction);
+		}
 	}
 
     _buildOrder = finalBuildOrder;

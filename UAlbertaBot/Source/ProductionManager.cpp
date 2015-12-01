@@ -159,6 +159,19 @@ void ProductionManager::manageBuildOrderQueue()
 			break;
 		}
 
+
+		if (currentItem.metaType.isTech()) {
+			auto set = getProducersForUpgrade(currentItem.metaType);
+			auto techType = currentItem.metaType.getTechType();
+			bool hasResearched = BWAPI::Broodwar->self()->hasResearched(techType);
+			bool isResearching = BWAPI::Broodwar->self()->isResearching(techType);
+			if (isResearching || hasResearched) {
+					// Just remove it shouldn't be here
+					_queue.removeCurrentHighestPriorityItem();
+					break;
+				}
+		}
+
 		// Check for other buildings
 		if (currentItem.metaType.isUpgrade()) {
 			auto set = getProducersForUpgrade(currentItem.metaType);
@@ -422,6 +435,7 @@ BWAPI::Unit ProductionManager::getClosestUnitToPosition(const BWAPI::Unitset & u
 // this function will check to see if all preconditions are met and then create a unit
 void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item) 
 {
+
     if (!producer)
     {
         return;

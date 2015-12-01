@@ -321,10 +321,19 @@ bool GameState::isLegal(const ActionType & action) const
     }
 
     // can only build one of a tech type
-    if (action.isTech() && getUnitData().getNumTotal(action) > 0)
+    if (action.isTech() && getUnitData().getNumTotal(action) > 0 ||
+		(BWAPI::Broodwar->self()->hasResearched(action.getTechType()) ||
+		BWAPI::Broodwar->self()->isResearching(action.getTechType())))
     {
         return false;
+
     }
+	// can't run the same upgrade twice
+	if (action.isUpgrade() && 
+		action.getType() == BWAPI::Broodwar->self()->getUpgradeLevel(action.getUpgradeType()))
+	{
+		return false;
+	}
 
     // check to see if an addon can ever be built
     if (action.isAddon() && !_units.getBuildingData().canBuildEventually(action) && (_units.getNumInProgress(action.whatBuildsActionType()) == 0))
