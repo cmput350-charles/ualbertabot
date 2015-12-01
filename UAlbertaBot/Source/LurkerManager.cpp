@@ -43,7 +43,7 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 					LurkerUnit->burrow();
 					Micro::SmartAttackUnit(LurkerUnit, target);
 				}
-				else {
+				else if (!hasTargetInRange(LurkerUnit,targets)){
 					LurkerUnit->unburrow();
 					Micro::SmartMove(LurkerUnit, target->getPosition());
 				}
@@ -58,6 +58,16 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 			}
 		//}
 	}
+}
+
+bool LurkerManager::hasTargetInRange(BWAPI::Unit LurkerUnit, const BWAPI::Unitset & targets) {
+	for (auto & target : targets)
+	{
+		if (LurkerUnit->getDistance(target) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange()) {
+			return true;
+		}
+	}
+	return false;
 }
 
 std::pair<BWAPI::Unit, BWAPI::Unit> LurkerManager::findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets)

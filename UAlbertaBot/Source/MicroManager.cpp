@@ -130,7 +130,7 @@ void MicroManager::regroup(const BWAPI::Position & regroupPosition) const
 		// if the unit is outside the regroup area
         if (unitDistanceFromBase > regroupDistanceFromBase)
         {
-            Micro::SmartMove(unit, ourBasePosition);
+            //Micro::SmartMove(unit, ourBasePosition);
         }
 		else if (unit->getDistance(regroupPosition) > 100)
 		{

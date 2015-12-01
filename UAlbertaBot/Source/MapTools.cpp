@@ -232,7 +232,8 @@ void MapTools::drawHomeDistanceMap()
 
 BWAPI::TilePosition MapTools::getNextExpansion(BWAPI::Player player)
 {
-    BWTA::BaseLocation * closestBase = nullptr;
+    //BWTA::BaseLocation * closestBase = nullptr;
+	std::vector<std::pair<double,BWAPI::TilePosition>> locations;
     double minDistance = 100000;
 
     BWAPI::TilePosition homeTile = player->getStartLocation();
@@ -280,18 +281,23 @@ BWAPI::TilePosition MapTools::getNextExpansion(BWAPI::Player player)
                 continue;
             }
 
-            if (!closestBase || distanceFromHome < minDistance)
-            {
-                closestBase = base;
-                minDistance = distanceFromHome;
-            }
+            //if (!closestBase || distanceFromHome < minDistance)
+            //{
+            //    closestBase = base;
+            //    minDistance = distanceFromHome;
+            //}
+
+			locations.push_back(std::pair<double, BWAPI::TilePosition>(distanceFromHome, base->getTilePosition()));
+
         }
 
     }
 
-    if (closestBase)
+    if (locations.size() > 0)
     {
-        return closestBase->getTilePosition();
+		std::sort(locations.begin(), locations.end(), [](std::pair<double, BWAPI::TilePosition> a, std::pair<double, BWAPI::TilePosition> b){ return a.first < b.first; });
+		// Return 3 or the next best..
+        return locations[3 % locations.size()].second;
     }
     else
     {

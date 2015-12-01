@@ -12,6 +12,8 @@ namespace UAlbertaBot
 		LurkerManager();
 		void executeMicro(const BWAPI::Unitset & targets);
 
+		bool hasTargetInRange(BWAPI::Unit LurkerUnit, const BWAPI::Unitset & targets);
+
 		BWAPI::Unit chooseTarget(BWAPI::Unit rangedUnit, const BWAPI::Unitset & targets, std::map<BWAPI::Unit, int> & numTargeting);
 		BWAPI::Unit closestLurkerUnit(BWAPI::Unit target, std::set<BWAPI::Unit> & rangedUnitsToAssign);
 		std::pair<BWAPI::Unit, BWAPI::Unit> findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets);

@@ -143,6 +143,7 @@ void CombatCommander::updateAttackSquads()
 
     for (auto & unit : _combatUnits)
     {
+
         if (unit->getType() == BWAPI::UnitTypes::Zerg_Scourge && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hydralisk) < 30)
         {
             continue;
@@ -166,6 +167,14 @@ void CombatCommander::updateAttackSquads()
         }
     }
 
+
+	// Defend bases until we have 3 lurkers
+	if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lurker) < 2) {
+		BWTA::BaseLocation * pos = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
+		SquadOrder mainAttackOrder(SquadOrderTypes::Defend, pos->getPosition(), 500, "Defend Region!");
+		mainAttackSquad.setSquadOrder(mainAttackOrder);
+		return;
+	}
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
 }
@@ -428,6 +437,7 @@ void CombatCommander::updateDefenseSquads()
 
     // for each of our defense squads, if there aren't any enemy units near the position, remove the squad
     std::set<std::string> uselessDefenseSquads;
+
     for (const auto & kv : _squadData.getSquads())
     {
         const Squad & squad = kv.second;
@@ -441,7 +451,8 @@ void CombatCommander::updateDefenseSquads()
         bool enemyUnitInRange = false;
         for (auto & unit : BWAPI::Broodwar->enemy()->getUnits())
         {
-            if (unit->getPosition().getDistance(order.getPosition()) < order.getRadius())
+			
+			if (unit->getPosition().getDistance(order.getPosition()) < order.getRadius())
             {
                 enemyUnitInRange = true;
                 break;
@@ -457,54 +468,62 @@ void CombatCommander::updateDefenseSquads()
 
 void CombatCommander::updateDefenseSquadUnits(Squad & defenseSquad, const size_t & flyingDefendersNeeded, const size_t & groundDefendersNeeded)
 {
-    const BWAPI::Unitset & squadUnits = defenseSquad.getUnits();
-    size_t flyingDefendersInSquad = std::count_if(squadUnits.begin(), squadUnits.end(), UnitUtil::CanAttackAir);
-    size_t groundDefendersInSquad = std::count_if(squadUnits.begin(), squadUnits.end(), UnitUtil::CanAttackGround);
 
-    // if there's nothing left to defend, clear the squad
-    if (flyingDefendersNeeded == 0 && groundDefendersNeeded == 0)
-    {
-        defenseSquad.clear();
-        return;
-    }
 
-    // add flying defenders if we still need them
-    size_t flyingDefendersAdded = 0;
-    while (flyingDefendersNeeded > flyingDefendersInSquad + flyingDefendersAdded)
-    {
-        BWAPI::Unit defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition(), true);
+	int zerglingsInOurBase = numZerglingsInOurBase();
+	bool zerglingRush = zerglingsInOurBase > 0 && BWAPI::Broodwar->getFrameCount() < 5000;
 
-        // if we find a valid flying defender, add it to the squad
-        if (defenderToAdd)
-        {
-            _squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
-            ++flyingDefendersAdded;
-        }
-        // otherwise we'll never find another one so break out of this loop
-        else
-        {
-            break;
-        }
-    }
+	const BWAPI::Unitset & squadUnits = defenseSquad.getUnits();
+	size_t flyingDefendersInSquad = std::count_if(squadUnits.begin(), squadUnits.end(), UnitUtil::CanAttackAir);
+	size_t groundDefendersInSquad = std::count_if(squadUnits.begin(), squadUnits.end(), UnitUtil::CanAttackGround);
 
-    // add ground defenders if we still need them
-    size_t groundDefendersAdded = 0;
-    while (groundDefendersNeeded > groundDefendersInSquad + groundDefendersAdded)
-    {
-        BWAPI::Unit defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition(), false);
+	// if there's nothing left to defend, clear the squad
+	if (flyingDefendersNeeded == 0 && groundDefendersNeeded == 0)
+	{
+		defenseSquad.clear();
+		return;
+	}
 
-        // if we find a valid ground defender add it
-        if (defenderToAdd)
-        {
-            _squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
-            ++groundDefendersAdded;
-        }
-        // otherwise we'll never find another one so break out of this loop
-        else
-        {
-            break;
-        }
-    }
+
+
+	// add flying defenders if we still need them
+	size_t flyingDefendersAdded = 0;
+	while (flyingDefendersNeeded > flyingDefendersInSquad + flyingDefendersAdded)
+	{
+		BWAPI::Unit defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition(), true);
+
+		// if we find a valid flying defender, add it to the squad
+		if (defenderToAdd)
+		{
+			_squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
+			++flyingDefendersAdded;
+		}
+		// otherwise we'll never find another one so break out of this loop
+		else
+		{
+			break;
+		}
+	}
+
+
+	// add ground defenders if we still need them
+	size_t groundDefendersAdded = 0;
+	while (groundDefendersNeeded > groundDefendersInSquad + groundDefendersAdded)
+	{
+		BWAPI::Unit defenderToAdd = findClosestDefender(defenseSquad, defenseSquad.getSquadOrder().getPosition(), false);
+
+		// if we find a valid ground defender add it
+		if (defenderToAdd)
+		{
+			_squadData.assignUnitToSquad(defenderToAdd, defenseSquad);
+			++groundDefendersAdded;
+		}
+		// otherwise we'll never find another one so break out of this loop
+		else
+		{
+			break;
+		}
+	}
 }
 
 BWAPI::Unit CombatCommander::findClosestDefender(const Squad & defenseSquad, BWAPI::Position pos, bool flyingDefender) 
@@ -521,6 +540,7 @@ BWAPI::Unit CombatCommander::findClosestDefender(const Squad & defenseSquad, BWA
         {
             continue;
         }
+
 
         if (!_squadData.canAssignUnitToSquad(unit, defenseSquad))
         {

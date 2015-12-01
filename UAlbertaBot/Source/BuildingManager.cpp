@@ -403,7 +403,9 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 		+ UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lair)
 		+ UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Hive);
 
-	if (numCC == 3) {
+	int numToMacro = BWAPI::Broodwar->enemy()->getRace() == BWAPI::Races::Zerg ? 3 : 2;
+
+	if (numCC == numToMacro) {
 		//BWAPI::Broodwar->printf("3cc's detected, macrohatch = true");
 		macroHatch = true;
 	}
@@ -434,7 +436,7 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 
 	if (b.type.isResourceDepot())
 	{		
-		if ((numCC == 2) && (macroHatch == false)) {
+		if ((numCC == numToMacro - 1) && (macroHatch == false)) {
 			//BWAPI::Broodwar->printf("Should be making macro hatch");
 			BWTA::BaseLocation * home;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations()) {
