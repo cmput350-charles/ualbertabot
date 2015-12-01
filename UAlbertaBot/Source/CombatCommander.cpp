@@ -169,7 +169,7 @@ void CombatCommander::updateAttackSquads()
 
 
 	// Defend bases until we have 3 lurkers
-	if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg && UnitUtil::GetAllUnitCount(BWAPI::UnitTypes::Zerg_Lurker) < 2) {
+	if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg && mainAttackSquad.getUnits().size() < 10) {
 		BWTA::BaseLocation * pos = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
 		SquadOrder mainAttackOrder(SquadOrderTypes::Defend, pos->getPosition(), 500, "Defend Region!");
 		mainAttackSquad.setSquadOrder(mainAttackOrder);

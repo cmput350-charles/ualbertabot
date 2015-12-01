@@ -39,11 +39,11 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 				}
 
 				// burrow and attack it
-				if (LurkerUnit->getDistance(target) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange()) {
+				if (targetsInRange(LurkerUnit, targets) > 0) {
 					LurkerUnit->burrow();
 					Micro::SmartAttackUnit(LurkerUnit, target);
 				}
-				else if (!hasTargetInRange(LurkerUnit,targets)){
+				else if (targetsInRange(LurkerUnit,targets) == 0){
 					LurkerUnit->unburrow();
 					Micro::SmartMove(LurkerUnit, target->getPosition());
 				}
@@ -60,14 +60,22 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 	}
 }
 
-bool LurkerManager::hasTargetInRange(BWAPI::Unit LurkerUnit, const BWAPI::Unitset & targets) {
+int LurkerManager::targetsInRange(BWAPI::Unit LurkerUnit, const BWAPI::Unitset & targets) {
+	int count = 0;
 	for (auto & target : targets)
 	{
-		if (LurkerUnit->getDistance(target) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange()) {
-			return true;
+		if (LurkerUnit->getDistance(target) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange() + 10) {
+			++count;
 		}
 	}
-	return false;
+
+	for (auto & unit : BWAPI::Broodwar->enemy()->getUnits()) {
+		if (LurkerUnit->getDistance(unit) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange() + 10) {
+			++count;
+		}
+	}
+
+	return count;
 }
 
 std::pair<BWAPI::Unit, BWAPI::Unit> LurkerManager::findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets)
