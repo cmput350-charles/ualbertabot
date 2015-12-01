@@ -155,7 +155,7 @@ void ParseUtils::ParseConfigFile(const std::string & filename)
         JSONTools::ReadBool("UseEnemySpecificStrategy", strategy, Config::Strategy::UseEnemySpecificStrategy);
         if (Config::Strategy::UseEnemySpecificStrategy && strategy.HasMember("EnemySpecificStrategy") && strategy["EnemySpecificStrategy"].IsObject())
         {
-            const std::string enemyRace = BWAPI::Broodwar->enemy()->getrace();
+            const std::string enemyRace = BWAPI::Broodwar->enemy()->getRace().toString();
             const rapidjson::Value & specific = strategy["EnemySpecificStrategy"];
 
             // check to see if our current enemy name is listed anywhere in the specific strategies
