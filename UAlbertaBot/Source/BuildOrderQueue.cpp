@@ -80,11 +80,15 @@ bool BuildOrderQueue::canSkipItem()
 
 void BuildOrderQueue::queueItem(BuildOrderItem b) 
 {
+	// Don't add duplicate items to queue
+	if (b.metaType.isUpgrade() && std::find_if(queue.begin(), queue.end(),
+		[b](BuildOrderItem item) { return item.metaType.type() == b.metaType.type() &&
+		item.metaType.getUpgradeType() == b.metaType.getUpgradeType(); }) != queue.end()) {
+		return;
+	}
+
 	// if the queue is empty, set the highest and lowest priorities
 
-	if (b.metaType.isUpgrade()){
-		b.blocking = false;
-	}
 	if (queue.empty()) 
 	{
 		highestPriority = b.priority;
@@ -182,6 +186,14 @@ bool BuildOrderQueue::isEmpty()
 BuildOrderItem BuildOrderQueue::operator [] (int i)
 {
 	return queue[i];
+}
+
+
+std::deque<BuildOrderItem>::iterator BuildOrderQueue::begin() {
+	return queue.begin();
+}
+std::deque<BuildOrderItem>::iterator BuildOrderQueue::end() {
+	return queue.end();
 }
 
 void BuildOrderQueue::drawQueueInformation(int x, int y) 

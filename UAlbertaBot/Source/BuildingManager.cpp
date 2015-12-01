@@ -435,7 +435,7 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 	if (b.type.isResourceDepot())
 	{		
 		if ((numCC == 2) && (macroHatch == false)) {
-			BWAPI::Broodwar->printf("Should be making macro hatch");
+			//BWAPI::Broodwar->printf("Should be making macro hatch");
 			BWTA::BaseLocation * home;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations()) {
 				if (base->getTilePosition() == BWAPI::Broodwar->self()->getStartLocation()){
@@ -455,7 +455,10 @@ BWAPI::TilePosition BuildingManager::getBuildingLocation(const Building & b)
 	}
 
 	// set the building padding specifically
-	int distance = (b.type == BWAPI::UnitTypes::Protoss_Photon_Cannon || b.type == BWAPI::UnitTypes::Zerg_Creep_Colony) ? 0 : Config::Macro::BuildingSpacing;
+	int distance = (b.type == BWAPI::UnitTypes::Protoss_Photon_Cannon || 
+		b.type == BWAPI::UnitTypes::Zerg_Creep_Colony || 
+		b.type == BWAPI::UnitTypes::Zerg_Evolution_Chamber) ? 0 : Config::Macro::BuildingSpacing;
+
     if (b.type == BWAPI::UnitTypes::Protoss_Pylon && (numPylons < 3))
     {
         distance = Config::Macro::PylonSpacing;

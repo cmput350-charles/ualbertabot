@@ -69,5 +69,8 @@ public:
 
     // overload the bracket operator for ease of use
     BuildOrderItem operator [] (int i);
+
+	std::deque<BuildOrderItem>::iterator begin();
+	std::deque<BuildOrderItem>::iterator end();
 };
 }

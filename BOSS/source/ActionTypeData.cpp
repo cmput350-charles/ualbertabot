@@ -545,8 +545,7 @@ PrerequisiteSet ActionTypeData::CalculatePrerequisites(const ActionTypeData & ac
 	{
 		if (action.getUpgradeType().whatUpgrades() != BWAPI::UnitTypes::None)
 		{
-			//if (DEBUG_StarcraftData) 
-			BWAPI::Broodwar->printf("\tPRE: %s\n", action.getUpgradeType().whatUpgrades().getName().c_str());
+			//if (DEBUG_StarcraftData) BWAPI::Broodwar->printf("\tPRE: %s\n", action.getUpgradeType().whatUpgrades().getName().c_str());
 
 			// add what upgrades it
 			pre.add(ActionType(action.getRaceID(), GetActionID(action.getUpgradeType().whatUpgrades())), 1);

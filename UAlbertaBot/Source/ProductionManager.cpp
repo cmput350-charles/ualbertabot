@@ -133,6 +133,10 @@ void ProductionManager::onUnitDestroy(BWAPI::Unit unit)
 	}
 }
 
+bool ProductionManager::isInQueue(MetaType t) {
+	return std::find_if(_queue.begin(), _queue.end(), [t](BuildOrderItem i){ return i.metaType.getName() == t.getName(); }) != _queue.end();
+}
+
 void ProductionManager::manageBuildOrderQueue() 
 {
 	// if there is nothing in the _queue, oh well
@@ -144,9 +148,36 @@ void ProductionManager::manageBuildOrderQueue()
 	// the current item to be used
 	BuildOrderItem & currentItem = _queue.getHighestPriorityItem();
 
+
+
 	// while there is still something left in the _queue
 	while (!_queue.isEmpty()) 
 	{
+
+		if (currentItem.metaType.getUnitType() == BWAPI::UnitTypes::Zerg_Spire) {
+			_queue.removeCurrentHighestPriorityItem();
+			break;
+		}
+
+		// Check for other buildings
+		if (currentItem.metaType.isUpgrade()) {
+			auto set = getProducersForUpgrade(currentItem.metaType);
+			auto upgType = currentItem.metaType.getUpgradeType();
+			int maxLvl = BWAPI::Broodwar->self()->getMaxUpgradeLevel(upgType);
+			int currentLvl = BWAPI::Broodwar->self()->getUpgradeLevel(upgType);
+			for (auto unit : set) {
+				bool canMake = canMakeNow(unit, currentItem.metaType);
+				if (canMake && unit->canUpgrade(currentItem.metaType.getUpgradeType()) && 
+					!unit->isUpgrading()) {
+					create(unit, currentItem);
+					// Just remove we will readd on next iteration if needed
+					_queue.removeCurrentHighestPriorityItem();
+					break;
+				}
+			}
+		}
+
+		
 		// this is the unit which can produce the currentItem
 		BWAPI::Unit producer;
 
@@ -165,11 +196,12 @@ void ProductionManager::manageBuildOrderQueue()
 
 		// Check if it's an upgrade, just do it right away and continue on
 		// Was waiting before
-		if (canMake && currentItem.metaType.isUpgrade()) {
-			create(producer, currentItem);
-			_queue.removeCurrentHighestPriorityItem();
-			break;
-		} else 
+		//if (canMake && currentItem.metaType.isUpgrade()) {
+		//	create(producer, currentItem);
+		//	_queue.removeCurrentHighestPriorityItem();
+		//	break;
+		//} else 
+
 		// if we try to build too many refineries manually remove it
 		if (currentItem.metaType.isRefinery() && (BWAPI::Broodwar->self()->allUnitCount(BWAPI::Broodwar->self()->getRace().getRefinery() >= 3)))
 		{
@@ -217,10 +249,53 @@ void ProductionManager::manageBuildOrderQueue()
 		else 
 		{
 			// so break out
+			// Can't do anything just remove it.
 			break;
 		}
 	}
 }
+
+BWAPI::Unitset ProductionManager::getProducersForUpgrade(MetaType t)
+{
+	// get the type of unit that builds this
+	BWAPI::UnitType producerType = t.whatBuilds();
+
+	// make a set of all candidate producers
+	BWAPI::Unitset candidateProducers;
+
+	for (auto & unit : BWAPI::Broodwar->self()->getUnits())
+	{
+		UAB_ASSERT(unit != nullptr, "Unit was null");
+
+		// reasons a unit can not train the desired type
+		if (unit->getType() != producerType)                    { continue; }
+		if (!unit->isCompleted())                               { continue; }
+		if (unit->isTraining())                                 { continue; }
+		if (unit->isLifted())                                   { continue; }
+		if (!unit->isPowered())                                 { continue; }
+
+		// if the type requires an addon and the producer doesn't have one
+		typedef std::pair<BWAPI::UnitType, int> ReqPair;
+		for (const ReqPair & pair : t.getUnitType().requiredUnits())
+		{
+			BWAPI::UnitType requiredType = pair.first;
+			if (requiredType.isAddon())
+			{
+				if (!unit->getAddon() || (unit->getAddon()->getType() != requiredType))
+				{
+					continue;
+				}
+			}
+		}
+
+		// if we haven't cut it, add it to the set of candidates
+		candidateProducers.insert(unit);
+	}
+
+	return candidateProducers;
+}
+
+
 
 BWAPI::Unit ProductionManager::getProducer(MetaType t, BWAPI::Position closestTo)
 {
@@ -366,7 +441,7 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         // send the building task to the building manager
 		if (t.getUnitType() == BWAPI::UnitTypes::Zerg_Creep_Colony) {
 			auto home = BWAPI::Broodwar->self()->getStartLocation();
-			int dist = 1000;
+			int dist = 9999;
 			BWTA::BaseLocation * nat;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations())
 			{
@@ -429,7 +504,9 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
     }
     else
     {	
-		
+		// Otherwise we can't do this..
+		// Just remove it to avoid getting stuck...
+		_queue.removeHighestPriorityItem();
     }
 }
 

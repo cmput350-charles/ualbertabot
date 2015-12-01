@@ -53,7 +53,9 @@ public:
     void        drawProductionInformation(int x,int y);
     void        setSearchGoal(MetaPairVector & goal);
     void        queueGasSteal();
+	bool		isInQueue(MetaType t);
 
+	BWAPI::Unitset getProducersForUpgrade(MetaType t);
     BWAPI::Unit getProducer(MetaType t,BWAPI::Position closestTo = BWAPI::Positions::None);
 };
 

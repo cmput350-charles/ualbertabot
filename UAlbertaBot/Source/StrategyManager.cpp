@@ -258,11 +258,12 @@ const MetaPairVector StrategyManager::getTerranBuildOrderGoal() const
 	return goal;
 }
 
-bool StrategyManager::playerHasUpgrade(MetaType upgradeMeta) const {
+// Check if we have this upgrade already
+bool StrategyManager::playerHasUpgrade(std::pair<MetaType,unsigned int> upgradeMetaPair) const {
 
-	auto upgrade = upgradeMeta.getUpgradeType();
+	auto upgrade = upgradeMetaPair.first.getUpgradeType();
 
-	if (BWAPI::Broodwar->self()->getUpgradeLevel(upgrade) > 0 || BWAPI::Broodwar->self()->isUpgrading(upgrade)) {
+	if (upgradeMetaPair.second == BWAPI::Broodwar->self()->getUpgradeLevel(upgrade)) {
 		return true;
 	}
 
@@ -295,6 +296,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 	if (numCC * (15) > numWorkers) {
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Drone, numWorkers + 3));
 	}
+
 
     if (Config::Strategy::StrategyName == "Zerg_ZerglingRush")
     {
@@ -344,22 +346,39 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 	if (currentStrategyIt != std::end(_strategies))
 	{
 		UpgradeOrder upgradeOrder = currentStrategyIt->second._upgradeOrder;
+		int addNumUpgradesToQueue = 2;
+		int numAddedUpgrades = 0;
 		// Check bounds
-		if (!upgradeOrder.empty() && !playerHasUpgrade(upgradeOrder.getNextUpgrade())) {
-			goal.push_back(std::pair<MetaType, int>(upgradeOrder.getNextUpgrade(), 1));
-			upgradeOrder.upgradeAddedToBuild();
+		if (!upgradeOrder.empty()) {
 
-			// Update the order in the map
-			_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
-		}
-		if (!upgradeOrder.empty() && !playerHasUpgrade(upgradeOrder.getNextUpgrade())) {
-			goal.push_back(std::pair<MetaType, int>(upgradeOrder.getNextUpgrade(), 1));
-			upgradeOrder.upgradeAddedToBuild();
-			// Update the order in the map
+			// Do 2 upgrades and check if within bounds
+			for (size_t numUpgrades = 0; numUpgrades < upgradeOrder.size(); ++numUpgrades) {
 
-			_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
+				auto upgradePair = upgradeOrder[numUpgrades];
+
+				if (playerHasUpgrade(upgradePair)) {
+					continue;
+				}
+
+				// We have done 2 upgrades, update next time.
+				if (numAddedUpgrades >= addNumUpgradesToQueue) {
+					break;
+				}
+
+				
+
+				// Check if player has this upgrade already...
+				if (!playerHasUpgrade(upgradePair) && 
+					!BWAPI::Broodwar->self()->isUpgrading(upgradePair.first.getUpgradeType())) {
+					++numAddedUpgrades;
+				    goal.push_back(upgradePair);
+				}
+			}
+			// Update the order in the map
+			//_strategies[Config::Strategy::StrategyName]._upgradeOrder = upgradeOrder;
 		}
 	}
+
 	return goal;
 }
 
