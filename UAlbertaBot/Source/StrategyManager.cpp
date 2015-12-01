@@ -302,7 +302,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
     {
         goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Zergling, zerglings + 6));
     }
-    else if (Config::Strategy::StrategyName == "Zerg_2HatchHydra")
+	else if (Config::Strategy::StrategyName == "Zerg_2HatchHydra" || Config::Strategy::StrategyName == "Zerg_2HatchHydra_Zerg")
 	{
 
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk, numLurkers + 4));
@@ -364,8 +364,6 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 				if (numAddedUpgrades >= addNumUpgradesToQueue) {
 					break;
 				}
-
-				
 
 				// Check if player has this upgrade already...
 				if (!playerHasUpgrade(upgradePair) && 
