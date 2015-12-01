@@ -91,9 +91,9 @@
         "UseEnemySpecificStrategy"  : true,
         "EnemySpecificStrategy"     :
         {
-            "BotName1"              : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_VultureRush", "Zerg" : "Zerg_ZerglingRush" },
-            "BotName2"              : { "Protoss" : "Protoss_DragoonRush", "Terran" : "Terran_MarineRush", "Zerg" : "Zerg_ZerglingRush" },
-            "LetaBot"               : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_4RaxMarines", "Zerg" : "Zerg_ZerglingRush" }
+            "Protoss"              : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_VultureRush", "Zerg" : "Zerg_2HatchHydra" },
+            "Zerg"              : { "Protoss" : "Protoss_DragoonRush", "Terran" : "Terran_MarineRush", "Zerg" : "Zerg_ZerglingRush" },
+            "Terran"               : { "Protoss" : "Protoss_ZealotRush", "Terran" : "Terran_4RaxMarines", "Zerg" : "Zerg_9Pool" }
         },
         
         "Strategies" :
