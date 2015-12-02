@@ -71,7 +71,7 @@ const bool StrategyManager::shouldExpandNow() const
     }
 
     // we will make expansion N after array[N] minutes have passed
-    std::vector<int> expansionTimes = {5, 10, 20, 30, 40 , 50};
+    std::vector<int> expansionTimes = {5,6, 10, 15, 20, 25};// increase the search frequency to better fit our bot performance
 
     for (size_t i(0); i < expansionTimes.size(); ++i)
     {

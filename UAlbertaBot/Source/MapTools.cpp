@@ -232,8 +232,8 @@ void MapTools::drawHomeDistanceMap()
 
 BWAPI::TilePosition MapTools::getNextExpansion(BWAPI::Player player)
 {
-    //BWTA::BaseLocation * closestBase = nullptr;
-	std::vector<std::pair<double,BWAPI::TilePosition>> locations;
+    BWTA::BaseLocation * closestBase = nullptr;
+	//std::vector<std::pair<double,BWAPI::TilePosition>> locations; doesn't actually work, stored location gets thrown everytime the function finishes
     double minDistance = 100000;
 
     BWAPI::TilePosition homeTile = player->getStartLocation();
@@ -281,24 +281,28 @@ BWAPI::TilePosition MapTools::getNextExpansion(BWAPI::Player player)
                 continue;
             }
 
-            //if (!closestBase || distanceFromHome < minDistance)
-            //{
-            //    closestBase = base;
-            //    minDistance = distanceFromHome;
-            //}
-
-			locations.push_back(std::pair<double, BWAPI::TilePosition>(distanceFromHome, base->getTilePosition()));
+		   if (!closestBase || distanceFromHome < minDistance*1.5)
+           {
+               closestBase = base;
+               minDistance = distanceFromHome;
+           }
+		   minDistance *= 2;// increase the distance if we don't find any bases
+			//locations.push_back(std::pair<double, BWAPI::TilePosition>(distanceFromHome, base->getTilePosition()));
 
         }
 
     }
 
-    if (locations.size() > 0)
+   /** if (locations.size() > 0)
     {
 		std::sort(locations.begin(), locations.end(), [](std::pair<double, BWAPI::TilePosition> a, std::pair<double, BWAPI::TilePosition> b){ return a.first < b.first; });
 		// Return 3 or the next best..
         return locations[3 % locations.size()].second;
-    }
+    }**/
+	if (closestBase)
+	{
+		return closestBase->getTilePosition();
+	}
     else
     {
         return BWAPI::TilePositions::None;
