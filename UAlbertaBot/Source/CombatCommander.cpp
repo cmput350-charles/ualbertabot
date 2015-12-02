@@ -90,6 +90,11 @@ void CombatCommander::updateIdleSquad()
         // if it hasn't been assigned to a squad yet, put it in the low priority idle squad
         if (_squadData.canAssignUnitToSquad(unit, idleSquad))
         {
+
+			if (unit->getType() == BWAPI::UnitTypes::Zerg_Lurker) {
+				unit->burrow();
+			}
+
 			// Initial move for overlord scouting
 			if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord){
 				BWAPI::Position overlordDestination = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
@@ -171,7 +176,7 @@ void CombatCommander::updateAttackSquads()
 	// Defend bases until we have 3 lurkers
 	if (BWAPI::Broodwar->self()->getRace() == BWAPI::Races::Zerg && mainAttackSquad.getUnits().size() < 10) {
 		BWTA::BaseLocation * pos = InformationManager::Instance().getMainBaseLocation(BWAPI::Broodwar->self());
-		SquadOrder mainAttackOrder(SquadOrderTypes::Defend, pos->getPosition(), 500, "Defend Region!");
+		SquadOrder mainAttackOrder(SquadOrderTypes::Defend, pos->getPosition(), 250, "Defend Region!");
 		mainAttackSquad.setSquadOrder(mainAttackOrder);
 		return;
 	}
