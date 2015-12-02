@@ -28,8 +28,8 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 		//if (order.getType() == SquadOrderTypes::Attack || order.getType() == SquadOrderTypes::Defend)
 		//{
 			// if there are targets
-			if (!LurkerUnitTargets.empty())
-			{
+			//if (!LurkerUnitTargets.empty())
+			//{
 				// find the best target for this lurker
 				BWAPI::Unit target = getTarget(LurkerUnit, LurkerUnitTargets);
 				
@@ -39,25 +39,31 @@ void LurkerManager::assignTargetsOld(const BWAPI::Unitset & targets)
 				}
 
 				// burrow and attack it
-				if (LurkerUnit->getDistance(target) < BWAPI::UnitTypes::Zerg_Lurker.groundWeapon().maxRange()) {
+				if (targetsInRange(LurkerUnit, targets) > 0) {
 					LurkerUnit->burrow();
 					Micro::SmartAttackUnit(LurkerUnit, target);
 				}
-				else {
+				else if (targetsInRange(LurkerUnit,targets) == 0){
 					LurkerUnit->unburrow();
-					Micro::SmartMove(LurkerUnit, target->getPosition());
+					Micro::SmartMove(LurkerUnit, order.getPosition());
 				}
 				
-			}
+		}
 			// if there are no targets
-			else
-			{
-				LurkerUnit->unburrow();
+			//else
+			//{
+			//	LurkerUnit->unburrow();
 				// if we're not near the order position
-				Micro::SmartMove(LurkerUnit, order.getPosition());
-			}
+				//Micro::SmartMove(LurkerUnit, order.getPosition());
+			//}
 		//}
-	}
+	//}
+}
+
+int LurkerManager::targetsInRange(BWAPI::Unit LurkerUnit, const BWAPI::Unitset & targets) {
+	BWAPI::Unitset nearbyEnemies;
+	MapGrid::Instance().GetUnits(nearbyEnemies, LurkerUnit->getPosition() , BWAPI::UnitTypes::Zerg_Lurker.seekRange() + 10, false, true);
+	return nearbyEnemies.size();
 }
 
 std::pair<BWAPI::Unit, BWAPI::Unit> LurkerManager::findClosestUnitPair(const BWAPI::Unitset & attackers, const BWAPI::Unitset & targets)

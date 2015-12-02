@@ -69,7 +69,7 @@ void ProductionManager::update()
 		    BWAPI::Broodwar->printf("Supply deadlock detected, building supply!");
         }
 		//BWAPI::Broodwar->printf("Supply Provider : %s", MetaType(BWAPI::Broodwar->self()->getRace().getSupplyProvider().getName()));
-		_queue.queueAsRequiredPriority(MetaType(BWAPI::Broodwar->self()->getRace().getSupplyProvider()), true);
+		_queue.queueAsHighestPriority(MetaType(BWAPI::Broodwar->self()->getRace().getSupplyProvider()), true);
 	}
 
 	// if they have cloaked units get a new goal asap
@@ -157,6 +157,19 @@ void ProductionManager::manageBuildOrderQueue()
 		if (currentItem.metaType.getUnitType() == BWAPI::UnitTypes::Zerg_Spire) {
 			_queue.removeCurrentHighestPriorityItem();
 			break;
+		}
+
+
+		if (currentItem.metaType.isTech()) {
+			auto set = getProducersForUpgrade(currentItem.metaType);
+			auto techType = currentItem.metaType.getTechType();
+			bool hasResearched = BWAPI::Broodwar->self()->hasResearched(techType);
+			bool isResearching = BWAPI::Broodwar->self()->isResearching(techType);
+			if (isResearching || hasResearched) {
+					// Just remove it shouldn't be here
+					_queue.removeCurrentHighestPriorityItem();
+					break;
+				}
 		}
 
 		// Check for other buildings
@@ -422,6 +435,7 @@ BWAPI::Unit ProductionManager::getClosestUnitToPosition(const BWAPI::Unitset & u
 // this function will check to see if all preconditions are met and then create a unit
 void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item) 
 {
+
     if (!producer)
     {
         return;
@@ -441,7 +455,8 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
         // send the building task to the building manager
 		if (t.getUnitType() == BWAPI::UnitTypes::Zerg_Creep_Colony) {
 			auto home = BWAPI::Broodwar->self()->getStartLocation();
-			int dist = 9999;
+			auto nearestChoke = BWTA::getNearestChokepoint(home);
+			/*int dist = 9999;
 			BWTA::BaseLocation * nat;
 			for (BWTA::BaseLocation * base : BWTA::getBaseLocations())
 			{
@@ -459,12 +474,27 @@ void ProductionManager::create(BWAPI::Unit producer, BuildOrderItem & item)
 					}
 				}
 			}
-			BWAPI::TilePosition natPosition = nat->getTilePosition();
+			*/
 			//BWAPI::Broodwar->printf("Nat position for creep colony: %d , %d", natPosition.x, natPosition.y);
-			const std::vector<BWAPI::TilePosition> & closestToBuilding = MapTools::Instance().getClosestTilesTo(BWAPI::Position(natPosition));
-			//BWAPI::Broodwar->printf("number of tiles near NATURAL: %d", closestToBuilding.size());
+
+			BWAPI::Position nearest = nearestChoke->getCenter();
+			double distance = 10000;
+
+			for (auto & unit : BWAPI::Broodwar->self()->getUnits()) {
+				if (unit->getType() == BWAPI::UnitTypes::Zerg_Creep_Colony || unit->getType() == BWAPI::UnitTypes::Zerg_Sunken_Colony) {
+					double tempDist = nearest.getDistance(unit->getPosition());
+					if (tempDist < distance) {
+						distance = tempDist;
+						nearest = unit->getPosition();
+					}
+						
+				}
+			}
 			
-			BuildingManager::Instance().addBuildingTask(t.getUnitType(), natPosition, false);
+			const std::vector<BWAPI::TilePosition> & closestToBuilding = MapTools::Instance().getClosestTilesTo(nearest);
+			//BWAPI::Broodwar->printf("number of tiles near NATURAL: %d", closestToBuilding.size());
+			BWAPI::TilePosition p(nearest.x / 32,nearest.y / 32);
+			BuildingManager::Instance().addBuildingTask(t.getUnitType(), p, false);
 			//BuildingManager::Instance().addBuildingTask(t.getUnitType(), BWAPI::Broodwar->self()->getStartLocation(), item.isGasSteal);
 
 		}
