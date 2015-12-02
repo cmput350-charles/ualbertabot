@@ -64,6 +64,7 @@ public:
 	void					setWorkerJob(BWAPI::Unit unit, WorkerJob job, BWAPI::Unit jobUnit);
 	void					setWorkerJob(BWAPI::Unit unit, WorkerJob job, WorkerMoveData wmd);
 	void					setWorkerJob(BWAPI::Unit unit, WorkerJob job, BWAPI::UnitType jobUnitType);
+	void					setNumRefineryWorkersZero(BWAPI::Unit ref);
 
 	int						getNumWorkers() const;
 	int						getNumMineralWorkers() const;

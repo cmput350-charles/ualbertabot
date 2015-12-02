@@ -33,6 +33,16 @@ void WorkerManager::update()
 
 void WorkerManager::updateWorkerStatus() 
 {
+	static bool setGasZero = false;
+	if (BWAPI::Broodwar->elapsedTime() >= 500 && !setGasZero) {
+		for (auto & refinery : BWAPI::Broodwar->self()->getUnits()) {
+			if (refinery->getType().isRefinery()) {
+				setGasZero = true;
+				workerData.setNumRefineryWorkersZero(refinery);
+			}
+		}
+	}
+
 	// for each of our Workers
 	for (auto & worker : workerData.getWorkers())
 	{
@@ -55,12 +65,16 @@ void WorkerManager::updateWorkerStatus()
 		{
 			BWAPI::Unit refinery = workerData.getWorkerResource(worker);
 
+
 			// if the refinery doesn't exist anymore
-			if (!refinery || !refinery->exists() ||	refinery->getHitPoints() <= 0)
+			if (!refinery || !refinery->exists() || refinery->getHitPoints() <= 0 || (BWAPI::Broodwar->elapsedTime() > 260 && BWAPI::Broodwar->elapsedTime() < 500 && workerData.getWorkerJob(worker) == WorkerData::Gas))
 			{
+				workerData.addWorker(worker);
 				setMineralWorker(worker);
+
 			}
 		}
+
 	}
 }
 
@@ -89,6 +103,7 @@ void WorkerManager::handleGasWorkers()
 			for (int i=0; i<(Config::Macro::WorkersPerRefinery-numAssigned); ++i)
 			{
 				BWAPI::Unit gasWorker = getGasWorker(unit);
+
 				if (gasWorker)
 				{
 					workerData.setWorkerJob(gasWorker, WorkerData::Gas, unit);

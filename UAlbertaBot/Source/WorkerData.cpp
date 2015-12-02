@@ -14,6 +14,10 @@ WorkerData::WorkerData()
 	}
 }
 
+void	WorkerData::setNumRefineryWorkersZero(BWAPI::Unit refinery) {
+	refineryWorkerCount[refinery] = 0;
+}
+
 void WorkerData::workerDestroyed(BWAPI::Unit unit)
 {
 	if (!unit) { return; }
