@@ -246,6 +246,7 @@ BOSS::BuildOrderSearchGoal BOSSManager::GetGoal(const std::vector<MetaPair> & go
 
 	for (size_t i=0; i<goalUnits.size(); ++i)
 	{
+		BWAPI::Broodwar->printf("Goal, %s", goalUnits[i].first.getName().c_str());
 		goal.setGoal(GetActionType(goalUnits[i].first), goalUnits[i].second);
 	}
 

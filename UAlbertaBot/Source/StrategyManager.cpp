@@ -306,6 +306,7 @@ const MetaPairVector StrategyManager::getZergBuildOrderGoal() const
 		Config::Strategy::StrategyName == "Zerg_1Base_Lurker")
 	{
 
+
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Hydralisk, numHydras + 3));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Zergling, zerglings + 2));
 		goal.push_back(std::pair<MetaType, int>(BWAPI::UnitTypes::Zerg_Lurker, numLurkers + 1));

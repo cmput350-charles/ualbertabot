@@ -149,12 +149,13 @@ const BuildOrder & NaiveBuildOrderSearch::solve()
 			buildOrder.add(Hydralisk, additionalHydras);
 		}
 
-        if (_goal.getGoal(Hydralisk) > 0)
-        {
+		if (_goal.getGoal(Hydralisk) > 0)
+		{
 			int currentHydras = _state.getUnitData().getNumTotal(Hydralisk) + buildOrder.getTypeCount(Hydralisk);
-            int additionalHydras = _goal.getGoal(Hydralisk) - currentHydras;
-            buildOrder.add(Hydralisk, additionalHydras);
-        }
+			int additionalHydras = _goal.getGoal(Hydralisk) - currentHydras;
+			buildOrder.add(Hydralisk, additionalHydras);
+		}
+
 
         if (_goal.getGoal(Guardian) > 0 && _goal.getGoal(Devourer) > 0)
         {

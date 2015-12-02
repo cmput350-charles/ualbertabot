@@ -278,7 +278,7 @@ void RangedManager::assignTargetsNew(const BWAPI::Unitset & targets)
 
         if (Config::Micro::KiteWithRangedUnits)
         {
-            if (attacker->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || attacker->getType() == BWAPI::UnitTypes::Terran_Vulture)
+			if (attacker->getType() == BWAPI::UnitTypes::Zerg_Mutalisk || attacker->getType() == BWAPI::UnitTypes::Terran_Vulture || attacker->getType() == BWAPI::UnitTypes::Zerg_Hydralisk)
             {
 			    Micro::MutaDanceTarget(attacker, target);
             }

@@ -96,7 +96,7 @@ void CombatCommander::updateIdleSquad()
 			}
 
 			// Initial move for overlord scouting
-			if (unit->getType() == BWAPI::UnitTypes::Zerg_Overlord){
+			if (BWAPI::Broodwar->enemy()->getRace() != BWAPI::Races::Terran && unit->getType() == BWAPI::UnitTypes::Zerg_Overlord){
 				BWAPI::Position overlordDestination = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
 				BWAPI::Position patrolLocation = BWAPI::Position(BWAPI::Broodwar->self()->getStartLocation());
 
@@ -180,6 +180,7 @@ void CombatCommander::updateAttackSquads()
 		mainAttackSquad.setSquadOrder(mainAttackOrder);
 		return;
 	}
+
     SquadOrder mainAttackOrder(SquadOrderTypes::Attack, getMainAttackLocation(), 800, "Attack Enemy Base");
     mainAttackSquad.setSquadOrder(mainAttackOrder);
 }
