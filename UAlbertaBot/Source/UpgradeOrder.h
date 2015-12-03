@@ -24,6 +24,8 @@ public:
 
 	// add to queue
     void add(const MetaType & t);
+	//remove from queue
+	void UpgradeOrder::removefirst();
 
 	// Check if empty
 	bool empty() const;
