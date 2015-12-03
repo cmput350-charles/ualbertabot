@@ -60,7 +60,8 @@ class StrategyManager
     const	MetaPairVector		    getProtossBuildOrderGoal() const;
 	const	MetaPairVector		    getTerranBuildOrderGoal() const;
 	const	MetaPairVector		    getZergBuildOrderGoal() const;
-
+	mutable int upgradeframe = 0;
+	mutable int upgrade_minute = 0;
 public:
     
 	static	StrategyManager &	    Instance();
