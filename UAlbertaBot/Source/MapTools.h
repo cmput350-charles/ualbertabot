@@ -18,6 +18,7 @@ class MapTools
     std::vector<bool>           _map;        // the map stored at TilePosition resolution, values are 0/1 for walkable or not walkable
     std::vector<bool>           _units;      // map that stores whether a unit is on this position
     std::vector<int>            _fringe;     // the fringe vector which is used as a sort of 'open list'
+	std::vector<BWTA::BaseLocation*> Ourbaselocation;//a list of bases belonging to the player
     int                         _rows;
     int                         _cols;
 
