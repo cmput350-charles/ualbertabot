@@ -21,6 +21,12 @@ UpgradeOrder::UpgradeOrder(const BWAPI::Race & race, const std::vector<std::pair
 
 }
 
+void UpgradeOrder::removefirst()
+{
+	//if we get stuck in the upgrade order use this to clear the upgrade
+	if (_upgradeOrder.size()>=1)
+		_upgradeOrder.erase(_upgradeOrder.begin());
+}
 void UpgradeOrder::add(const MetaType & t)
 {
 	UAB_ASSERT(t.getRace() == getRace(), "Trying to add difference Race metatype to upgrade order");
